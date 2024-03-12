@@ -15,6 +15,26 @@ public class Planet : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        rotatePlanetWithKeyboard();
+        rotatePlanetWithMouse();
+    }
+
+    void rotatePlanetWithMouse()
+    {
+        if (Input.GetMouseButton(2))
+        {
+            float RotateX = Input.GetAxis("Mouse X") * rotateSpeed;
+            float RotateY = Input.GetAxis("Mouse Y") * rotateSpeed;
+
+            RotateX *= Time.deltaTime;
+            RotateY *= Time.deltaTime;
+
+            transform.Rotate(RotateY, 0, -RotateX);
+        }
+    }
+
+    void rotatePlanetWithKeyboard()
+    {
         float RotateZ = Input.GetAxis("Vertical") * rotateSpeed;
         float RotateX = Input.GetAxis("Horizontal") * rotateSpeed;
 

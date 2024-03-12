@@ -4,20 +4,19 @@ using UnityEngine;
 
 public class PlantWorld : MonoBehaviour
 {
-    public GameObject player;
     public GameObject[] plants;
     public List<GameObject> plantInstances = new List<GameObject>();
-    float plantGridDist = 1.0f;
-    int plantGridPoints = 10;
-    private float plantMinScale = 0.5f;
-    private float plantMaxScale = 5.0f;
-    private float playerMinDistance = 0.1f;
-    private float playerMaxDistance = 5.0f;
+    private float plantStartScaleMin = 0.8f;
+    private float plantStartScaleMax = 1.0f;
+    private Vector3 plantScaleDelta = new Vector3(0.1f, 0.1f, 0.1f);
+    private float plantMaxScale = 1.5f;
+    private float ScalingDistance = 1.0f;
 
     // Start is called before the first frame update
     void Start()
     {
-        initializePlants();
+        //initializePlantsOnGrid();
+        initializePlantsOnSphere();
     }
 
     // Update is called once per frame
@@ -27,9 +26,94 @@ public class PlantWorld : MonoBehaviour
         scalePlants();
     }
 
-    // Ini plants.
-    void initializePlants()
+    void FixedUpdate()
     {
+        placePlant();
+        scalePlants();
+    }
+
+    void initializePlantsOnSphere()
+    {
+        int nPlants = 50;
+        float initialRandomRadius = 30.0f; // take in account size of planet.
+        Vector3 planetPosition = new Vector3(0.0f, 0.0f, 0.0f);
+        for (int i = 0; i < nPlants; i++)
+        {
+            Vector3 randomPointPosition = Random.onUnitSphere * initialRandomRadius;
+            RaycastHit hit;
+            Vector3 direction = Vector3.Normalize(planetPosition - randomPointPosition);
+            Ray ray = new Ray(randomPointPosition, direction);
+            if (Physics.Raycast(ray, out hit, 100))
+            {
+                if (hit.collider.gameObject.name == "Planet") // use mask!
+                {
+                    instanceRandomPlant(hit.transform, hit.point, hit.normal);
+                }
+            }
+        }
+    }
+
+    void placePlant()
+    {
+        if (Input.GetMouseButton(0))
+        {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+            if (Physics.Raycast(ray, out hit, 100))
+            {
+                if (hit.collider.gameObject.name == "Planet") // use mask!
+                {
+                    instanceRandomPlant(hit.transform, hit.point, hit.normal);
+                }
+            }
+        }
+    }
+
+    void instanceRandomPlant(Transform parent, Vector3 position, Vector3 normal)
+    {
+        int plantIdx = (int)Mathf.Floor(Random.Range(0, plants.Length));
+        GameObject plant = plants[plantIdx];
+        GameObject plantInst = Instantiate(plant, position, plant.transform.rotation);
+        float scale = Random.Range(plantStartScaleMin, plantStartScaleMax);
+        plantInst.transform.localScale = new Vector3(scale, scale, scale);
+        // Use hit point normal to orient instance.
+        // https://docs.unity3d.com/ScriptReference/Quaternion.LookRotation.html
+        plantInst.transform.rotation = Quaternion.LookRotation(normal);
+        // Make sure to transform all instances with object on which it is spawn.
+        // https://docs.unity3d.com/ScriptReference/Transform-parent.html
+        plantInst.transform.parent = parent;
+    }
+
+    void scalePlants()
+    {
+        if (Input.GetMouseButton(1))
+        {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+            if (Physics.Raycast(ray, out hit, 100))
+            {
+                Collider[] hitColliders = Physics.OverlapSphere(hit.point, ScalingDistance);
+                foreach (Collider hitCollider in hitColliders)
+                {
+                    if (hitCollider.gameObject.name == "Planet")  // use mask!
+                    {
+                        continue;
+                    }
+                    hitCollider.transform.localScale += plantScaleDelta;
+                    if (hitCollider.transform.localScale.x > plantMaxScale)
+                    {
+                        hitCollider.transform.localScale = new Vector3(plantMaxScale, plantMaxScale, plantMaxScale);
+                    }
+                }
+            }
+        }
+    }
+
+    // Depricated.
+    void initializePlantsOnGrid()
+    {
+        float plantGridDist = 1.0f;
+        int plantGridPoints = 10;
         Vector3 currPosition = new Vector3(0.0f, 0.0f, 0.0f);
         for (int i = -plantGridPoints; i < plantGridPoints; i++)
         {
@@ -47,36 +131,6 @@ public class PlantWorld : MonoBehaviour
                     plantInstances.Add(plantInst);
                 }
             }
-        }
-    }
-
-    void scalePlants()
-    {
-        foreach (GameObject plantInst in plantInstances)
-        {
-            float dist = Vector3.Distance(player.transform.position, plantInst.transform.position);
-            if (dist > playerMaxDistance) continue;
-            if (dist < playerMinDistance) dist = playerMinDistance;
-            //if (dist > playerMaxDistance) dist = playerMaxDistance;
-            float t = dist / playerMaxDistance;
-            float scale = Mathf.Lerp(plantMinScale, plantMaxScale, 1.0f - t);
-            plantInst.transform.localScale = new Vector3(scale, scale, scale);
-        }
-    }
-
-    void FixedUpdate()
-    {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
-
-        if (Physics.Raycast(ray, out hit, 100))
-        {
-            //Debug.Log(hit.collider);
-            int plantIdx = (int)Mathf.Floor(Random.Range(0, plants.Length));
-            GameObject plant = plants[plantIdx];
-            GameObject plantInst = Instantiate(plant, hit.point, plant.transform.rotation);
-            float scale = Random.Range(0.3f, 1.0f);
-            plantInst.transform.localScale = new Vector3(scale, scale, scale);
         }
     }
 }
