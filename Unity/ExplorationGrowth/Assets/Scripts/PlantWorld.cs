@@ -10,8 +10,8 @@ public class PlantWorld : MonoBehaviour
     public GameObject debug;
     public GameObject[] plants;
     public List<GameObject> plantInstances = new List<GameObject>();
-    private float plantStartScaleMin = 0.8f;
-    private float plantStartScaleMax = 1.6f;
+    private float plantStartScaleMin = 2.0f;
+    private float plantStartScaleMax = 2.4f;
     private Vector3 plantScaleDelta = new Vector3(0.1f, 0.1f, 0.1f);
     private float plantMaxScale = 1.5f;
     private float ScalingDistance = 1.0f;
@@ -76,7 +76,13 @@ public class PlantWorld : MonoBehaviour
 
     void instanceRandomPlant(Transform parent, Vector3 position, Vector3 normal)
     {
+        // Use noise to instance plants.
         //int plantIdx = (int)Mathf.Floor(Random.Range(0, plants.Length)); // random.
+        // https://forum.unity.com/threads/an-overview-of-noise-functions-in-the-unity-mathematics-package.1098193/
+        // https://medium.com/@5argon/various-noise-functions-76327e056450
+        // https://github.com/Unity-Technologies/Unity.Mathematics
+        // https://blog.logrocket.com/making-procedural-noise-unity/
+        // https://docs.unity3d.com/Packages/com.unity.mathematics@1.3/api/Unity.Mathematics.html
         Unity.Mathematics.float4 noiseArg = new Unity.Mathematics.float4(position.x, position.y, position.z, 0.0f);
         float noiseVal = (cnoise(noiseArg) + 1.0f) / 2.0f;
         Debug.Log(noiseVal);

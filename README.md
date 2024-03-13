@@ -27,7 +27,12 @@ Plant plants:
 Grow plants:
 ![](Gallery/scale.png)
 
+Manupulate environment:
+![](Gallery/rotate.png)
+
 ## TODOs:
+* Add particle system for watering plants
+* Add particle system for spawining plants
 * Ensure minimal distance between plants while spwaning
 * Enhance growth animation
 * Introduce plants shrinking
