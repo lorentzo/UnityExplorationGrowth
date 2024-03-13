@@ -1,13 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+// https://docs.unity3d.com/Packages/com.unity.mathematics@1.2/api/Unity.Mathematics.html
+using static Unity.Mathematics.noise;
+using static Unity.Mathematics.math;
 
 public class PlantWorld : MonoBehaviour
 {
+    public GameObject debug;
     public GameObject[] plants;
     public List<GameObject> plantInstances = new List<GameObject>();
     private float plantStartScaleMin = 0.8f;
-    private float plantStartScaleMax = 1.0f;
+    private float plantStartScaleMax = 1.6f;
     private Vector3 plantScaleDelta = new Vector3(0.1f, 0.1f, 0.1f);
     private float plantMaxScale = 1.5f;
     private float ScalingDistance = 1.0f;
@@ -34,14 +38,15 @@ public class PlantWorld : MonoBehaviour
 
     void initializePlantsOnSphere()
     {
-        int nPlants = 50;
-        float initialRandomRadius = 30.0f; // take in account size of planet.
-        Vector3 planetPosition = new Vector3(0.0f, 0.0f, 0.0f);
+        int nPlants = 500;
+        float initialRandomRadius = 100.0f; // take in account size of planet.
         for (int i = 0; i < nPlants; i++)
         {
             Vector3 randomPointPosition = Random.onUnitSphere * initialRandomRadius;
+            GameObject debugInst = Instantiate(debug, randomPointPosition, debug.transform.rotation);
+            debugInst.transform.parent = transform;
             RaycastHit hit;
-            Vector3 direction = Vector3.Normalize(planetPosition - randomPointPosition);
+            Vector3 direction = Vector3.Normalize(transform.position - randomPointPosition);
             Ray ray = new Ray(randomPointPosition, direction);
             if (Physics.Raycast(ray, out hit, 100))
             {
@@ -71,7 +76,11 @@ public class PlantWorld : MonoBehaviour
 
     void instanceRandomPlant(Transform parent, Vector3 position, Vector3 normal)
     {
-        int plantIdx = (int)Mathf.Floor(Random.Range(0, plants.Length));
+        //int plantIdx = (int)Mathf.Floor(Random.Range(0, plants.Length)); // random.
+        Unity.Mathematics.float4 noiseArg = new Unity.Mathematics.float4(position.x, position.y, position.z, 0.0f);
+        float noiseVal = (cnoise(noiseArg) + 1.0f) / 2.0f;
+        Debug.Log(noiseVal);
+        int plantIdx = (int)Mathf.Floor(noiseVal * plants.Length); 
         GameObject plant = plants[plantIdx];
         GameObject plantInst = Instantiate(plant, position, plant.transform.rotation);
         float scale = Random.Range(plantStartScaleMin, plantStartScaleMax);
