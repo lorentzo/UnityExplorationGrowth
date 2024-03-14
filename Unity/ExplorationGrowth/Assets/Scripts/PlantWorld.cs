@@ -10,10 +10,10 @@ public class PlantWorld : MonoBehaviour
     public GameObject debug;
     public GameObject[] plants;
     public List<GameObject> plantInstances = new List<GameObject>();
-    private float plantStartScaleMin = 2.0f;
+    private float plantStartScaleMin = 1.0f;
     private float plantStartScaleMax = 2.4f;
     private Vector3 plantScaleDelta = new Vector3(0.1f, 0.1f, 0.1f);
-    private float plantMaxScale = 1.5f;
+    private float plantMaxScale = 3.0f;
     private float ScalingDistance = 1.0f;
 
     // Start is called before the first frame update

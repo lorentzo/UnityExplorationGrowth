@@ -31,14 +31,16 @@ Manupulate environment:
 ![](Gallery/rotate.png)
 
 ## TODOs:
-* Add particle system for watering plants
-* Add particle system for spawining plants
+* Itch demo
+* Cam distance
+* Planet texture: Blender bake or Unity Lit Shader Graph
+* Add particle system for watering plants FX
+* Add particle system for spawining plants FX
 * Ensure minimal distance between plants while spwaning
 * Enhance growth animation
 * Introduce plants shrinking
 * Add taking water from spring/cloud
-* Enhance planet art
-* Enhance environment art
+* Enhance lighting
 * randomize rotation of plants
 * Add color change to scaling
 * Rotating planet by mouse using RBD apply force on point to cause torque
